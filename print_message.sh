@@ -3,7 +3,7 @@ source "$LIBRARY_BASH/bash_colors.sh"
 verbosePattern='V'
 debugPattern='D'
 errorPattern='E'
-allPattern='always'
+allPattern='^always$'
 
 printMessage() {
    echo -e "${1}"
@@ -11,7 +11,7 @@ printMessage() {
 
 printVerboseMessage() {
    if [[ ($verbose == 1 && -n $1) ]]; then
-      if [[ "$COLORS" =~ $verbosePattern || "$COLORS" =~ $allPattern ]]; then
+      if PMSG_isColoredOutput $verbosePattern; then
          echo -e "${BBLUE}[INFO] ${1}${NC}"
       else
          echo -e "[INFO] ${1}"
@@ -21,7 +21,7 @@ printVerboseMessage() {
 
 printDebugMessage() {
    if [[ $debug == 1 ]]; then
-      if [[ "$COLORS" =~ $debugPattern || "$COLORS" =~ $allPattern ]]; then
+      if PMSG_isColoredOutput $debugPattern; then
          # [ ] Add colors ?
          echo -e "[DEBUG] ${1}"
       else
@@ -32,7 +32,7 @@ printDebugMessage() {
 
 printErrorMessageAndAsk() {
    if [[ -n $1 ]]; then
-      if [[ "$COLORS" =~ $errorPattern || "$COLORS" =~ $allPattern ]]; then
+      if PMSG_isColoredOutput $errorPattern; then
          echo -e "${BRED}[ERROR] $1"
 
       else
@@ -43,7 +43,7 @@ printErrorMessageAndAsk() {
    while [[ "$answer" != "y" && "$answer" != "n" && -n "$answer" ]]; do
       read -p "Continue? y/[n]: " answer
    done
-   if [[ "$COLORS" =~ $errorPattern || "$COLORS" =~ $allPattern ]]; then
+   if PMSG_isColoredOutput $errorPattern; then
       echo -e "${NC}"
    fi
 
@@ -63,6 +63,15 @@ printErrorMessageAndAsk() {
 
 printErrorMessage() {
    if [[ -n $1 ]]; then
+      if PMSG_isColoredOutput $errorPattern; then
+         echo -e "${BBLUE}[INFO] ${1}${NC}"
+      else
+         echo -e "[INFO] ${1}"
+      fi
       echo -e "${BRED}[ERROR] $1 ${NC}"
    fi
+}
+
+PMSG_isColoredOutput(){
+   return [[ "$COLORS" =~ $1 || "$COLORS" =~ $allPattern || -z $COLORS ]]
 }

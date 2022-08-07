@@ -3,6 +3,7 @@ source "$LIBRARY_BASH/bash_colors.sh"
 verbosePattern='V'
 debugPattern='D'
 errorPattern='E'
+successPattern='S'
 allPattern='^always$'
 
 printMessage() {
@@ -19,13 +20,23 @@ printVerboseMessage() {
    fi
 }
 
+printSuccessMessage() {
+   if [[ -n $1 ]]; then
+      if PMSG_isColoredOutput $successPattern; then
+         echo -e "${BGREEN}${1}${NC}"
+      else
+         echo -e "${1}"
+      fi
+   fi
+}
+
 printDebugMessage() {
    if [[ $debug == 1 ]]; then
       if PMSG_isColoredOutput $debugPattern; then
          # [ ] Add colors ?
          echo -e "[DEBUG] ${1}"
       else
-         echo -e "[INFO] ${1}"
+         echo -e "[DEBUG] ${1}"
       fi
    fi
 }
@@ -64,14 +75,14 @@ printErrorMessageAndAsk() {
 printErrorMessage() {
    if [[ -n $1 ]]; then
       if PMSG_isColoredOutput $errorPattern; then
-         echo -e "${BBLUE}[INFO] ${1}${NC}"
+         echo -e "${BRED}[ERROR] ${1}${NC}"
       else
-         echo -e "[INFO] ${1}"
+         echo -e "[ERROR] ${1}"
       fi
-      echo -e "${BRED}[ERROR] $1 ${NC}"
    fi
 }
 
 PMSG_isColoredOutput(){
-   return [[ "$COLORS" =~ $1 || "$COLORS" =~ $allPattern || -z $COLORS ]]
+   [[ "$COLORS" =~ $1 || "$COLORS" =~ $allPattern || -z $COLORS ]]
+   return $?
 }
